@@ -1,0 +1,16 @@
+<uwsgi>
+    <socket>:8000</socket><!-- 与nginx通讯的端口-->
+    <!--<http>:8000</http>-->
+    <chdir>/(xxx项目的上级路径)/XXX</chdir>
+    <module>YYY.wsgi</module><!--wsgi.py文件所在的位置-->
+    <processes>4</processes> <!-- 进程数 -->
+    <threads>2</threads> <!-- 线程数 -->
+    <disable-logging>false</disable-logging>   <!--  true只记录uwsgi错误和内部消息，不记录常规请求信息，false反之-->
+    <daemonize>/(uwsgi文件夹的上级路径)/uwsgi/uwsgi.log</daemonize><!--记录请求日志的文件所在的位置-->
+    <!--<socket>/(uwsgi文件夹的上级路径)/uwsgi/uwsgi.sock</socket>--><!--与nginx工具通讯的所在位置-->
+    <pidfile>/(uwsgi文件夹的上级路径)/uwsgi/uwsgi.pid</pidfile><!--对uwsgi进程管理的文件所在的位置-->
+    <stats>/(uwsgi文件夹的上级路径)/uwsgi/uwsgi.status</stats><!--对uwsgi负载情况记录的文件所在的位置-->
+    <master>true</master><!--开启主线程-->
+    <vacuum>true</vacuum><!--true当服务器退出的时候自动清理环境，删除unix socket文件和pid文件，false反之-->
+    <buffer-size>65535</buffer-size><!--uwsgi的最大缓存-->
+</uwsgi>
