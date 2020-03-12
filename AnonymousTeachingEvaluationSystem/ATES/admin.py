@@ -5,5 +5,5 @@ class EvaluationPostAdmin(admin.ModelAdmin):
     list_display = ('timestamp','teacherevaluation')
 
 admin.site.register(models.EvaluationPost,EvaluationPostAdmin)
-admin.site.register(models.TeacherImformationPost)
+admin.site.register(models.TeacherInformationPost)
 

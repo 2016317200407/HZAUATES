@@ -25,7 +25,7 @@ SECRET_KEY = 'ohj6p8_eom1kvhs2oa+o89anl=u6y$3anti$4g0%s4hon&h6az'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,25 +38,28 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'ATES',
-    
+    'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+CORS_ORIGIN_ALLOW_ALL =True
 
 ROOT_URLCONF = 'AnonymousTeachingEvaluationSystem.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['vue-demo/dist'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,6 +73,10 @@ TEMPLATES = [
             }
         },
     },
+]
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR,"vue-demo/dist/static"),
 ]
 
 WSGI_APPLICATION = 'AnonymousTeachingEvaluationSystem.wsgi.application'

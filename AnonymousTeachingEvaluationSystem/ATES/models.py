@@ -1,7 +1,7 @@
 from django.db import models
 
 class EvaluationPost(models.Model):
-    timestamp = models.DateTimeField()      #时间  
+    timestamp = models.CharField(max_length=20)      #时间  
     teachername = models.CharField(max_length=20)       #老师名字
     teacherevaluation = models.CharField(max_length=50)     #评论
     likecount = models.IntegerField()       #评论点赞数
@@ -14,7 +14,7 @@ class EvaluationPost(models.Model):
     class Meta:
         ordering = ('-timestamp',)      #默认按照时间排序。
 
-class TeacherImformationPost(models.Model):
+class TeacherInformationPost(models.Model):
     teachername = models.CharField(max_length=20)       #老师名称
     teacherclass = models.CharField(max_length=100)         #教的哪门课
     isprofessor = models.BooleanField(blank=True)       #是教授

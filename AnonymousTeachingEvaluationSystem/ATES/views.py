@@ -2,96 +2,82 @@ from django.shortcuts import render
 from ATES import models
 from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
-from ATES.models import EvaluationPost,TeacherImformationPost
+from ATES.models import EvaluationPost,TeacherInformationPost
 from django.utils import timezone
 from django.db.models import F,aggregates
 import datetime
-def like_add(request):
-    string = request.POST.get('timestamp')
-    stringlist = string.split('.')
-    stringlist[1] = stringlist[1][:6]
-    string = '.'.join(stringlist)
-    print(string)
-    teachers = models.EvaluationPost.objects.filter(timestamp=string)
-    teachers.update(likecount = F('likecount') + 1)
-    teacher = teachers.first()
-    Dict = {'New':str(teacher.likecount)}
-    return JsonResponse(Dict)
+from .ATESSerializers import EvaluationPostSerializer, TeacherInformationPostSerializer
+from rest_framework.viewsets import ModelViewSet
+from django.http import Http404
+from rest_framework.response import Response
+from rest_framework.decorators import action 
+from rest_framework.renderers import TemplateHTMLRenderer
+import json
 
-def homepage(request):
-    return render(request,'homepage.html')
+class TeacherViewSet(ModelViewSet):
 
-def searchinformation(request):
-    if request.method == 'POST':
-        searchname = request.POST.get("searchname")
-        searchtype = request.POST.get("radio")
-        if searchtype == "teachername":
-            request.session["teachername"] = searchname
-            teacherinformation = models.TeacherImformationPost.objects.filter(teachername = searchname)
-            evaluations = models.EvaluationPost.objects.filter(teachername = searchname).order_by('-likecount')
-            count = evaluations.count()
-            return render(request, 'teacherinformation.html', {'teacherinformation':teacherinformation,'evaluations':evaluations,'teachername':searchname,'count':count})
-        else:
-            teacherinformation = models.TeacherImformationPost.objects.filter(teacherclass = searchname)
-            count = []
-            for teacher in teacherinformation:
-                evaluations = models.EvaluationPost.objects.filter(teachername = teacher.teachername)
-                count.append(evaluations.count())
-            zipdata = zip(teacherinformation,count)
-            return render(request, 'searchteacher.html', {'zipdata':zipdata})
+    queryset = TeacherInformationPost.objects.all()
+    serializer_class = TeacherInformationPostSerializer
 
-def sortby(request):
-    if request.method == 'POST':
-        if (request.POST.get("sortby")) == '最新回复':
-            teachername = request.session["teachername"]
-            teacherinformation = models.TeacherImformationPost.objects.filter(teachername = teachername)
-            evaluations = models.EvaluationPost.objects.filter(teachername = teachername).order_by('-timestamp')
-            count = evaluations.count()
-            return render(request, 'teacherinformation.html', {'teacherinformation':teacherinformation,'evaluations':evaluations,'teachername':teachername,'count':count})
-        if (request.POST.get("sortby")) == '点赞量':
-            teachername = request.session["teachername"]
-            teacherinformation = models.TeacherImformationPost.objects.filter(teachername = teachername)
-            evaluations = models.EvaluationPost.objects.filter(teachername = teachername).order_by('-likecount')
-            count = evaluations.count()
-            return render(request, 'teacherinformation.html', {'teacherinformation':teacherinformation,'evaluations':evaluations,'teachername':teachername,'count':count})
+    @action(method=['get'],detail = True)
+    def classes(self,request,pk):
+        teachers = TeacherInformationPost.objects.filter(teacherclass=pk)
+        teachers = TeacherInformationPostSerializer(teachers,many = True)
+        return Response(teachers.data)
 
-def createinformation(request):
-    if request.method == 'POST':
-        teacher = EvaluationPost()
-        teachername = request.session["teachername"]
-        TeacherImformation = models.TeacherImformationPost.objects.get(teachername=teachername)
-        teacher.timestamp = datetime.datetime.now()
-        teacher.teachername = teachername
-        teacher.teacherevaluation = request.POST.get("evaluation")
-        teacher.likecount = 0
-        if request.POST.getlist("isroll_call"):
-            teacher.isroll_call = True
-            TeacherImformation.countisroll_call += 1
-        else:
-            teacher.isroll_call = False
-        if request.POST.getlist("isquality"):
-            teacher.isquality = True
-            TeacherImformation.countisquality += 1
-        else:
-            teacher.isquality = False
-        if request.POST.get("ishighscore"):
-            teacher.ishighscore = True
-            TeacherImformation.countishighscore += 1
-        else:
-            teacher.ishighscore = False
-        if request.POST.get("isfunny"):
-            teacher.isfunny = True
-            TeacherImformation.countisfunny += 1
-        else:
-            teacher.isfunny = False
-        if request.POST.get("isrecommend"):
-            teacher.isrecommend = True
-            TeacherImformation.countisrecommend += 1
-        else:
-            teacher.isrecommend = False
+    @action(methods=['get'],detail = True)
+    def getlist(self,request,pk):
+        teacher = TeacherInformationPost.objects.get(teachername=pk)
+        teacher = TeacherInformationPostSerializer(teacher)
+        return Response(teacher.data)
+
+class EvaluationViewSet(ModelViewSet):
+    
+    queryset = EvaluationPost.objects.all()
+    serializer_class = EvaluationPostSerializer
+    @action(methods=['post'],detail= False)
+    def update(self,request):
+        d = {}
+        a = request.data
+        d['teachername']=a['teachername']
+        d['timestamp']=str(datetime.datetime.now())[:19]
+        d['likecount']=0
+        d['isroll_call']=True if 'isroll_call' in  a['check'] else False
+        d['isquality']=True if 'isquality' in  a['check'] else False
+        d['ishighscore']=True if 'ishighscore' in  a['check'] else False
+        d['isfunny']=True if 'isfunny' in  a['check'] else False
+        d['isrecommend']=True if 'isrecommend' in  a['check'] else False
+        d['teacherevaluation']=a['evaluation']
+        serializer = EvaluationPostSerializer(data = d)
+        if  serializer.is_valid():
+            serializer.create(serializer.validated_data)
+        teacher = TeacherInformationPost.objects.get(teachername = a['teachername'])
+        teacher.countisroll_call += 1 if 'isroll_call' in  a['check'] else 0
+        teacher.countisquality += 1 if 'isquality' in  a['check'] else 0
+        teacher.countishighscore += 1 if 'ishighscore' in  a['check'] else 0
+        teacher.countisfunny += 1 if 'isfunny' in  a['check'] else 0
+        teacher.countisrecommend += 1 if 'isrecommend' in  a['check'] else 0
         teacher.save()
-        TeacherImformation.save()
-        teacherinformation = models.TeacherImformationPost.objects.filter(teachername = teacher.teachername)
-        evaluations = models.EvaluationPost.objects.filter(teachername = teacher.teachername)
-        count = evaluations.count()
-    return render(request, 'teacherinformation.html', {'teacherinformation':teacherinformation,'evaluations':evaluations,'teachername':teacher.teachername,'count':count})
+
+        return Response('Success!')
+
+    @action(methods=['get'],detail=True)
+    def ilike(self,request,pk):
+        evaluation = EvaluationPost.objects.get(timestamp=pk)
+        evaluation.likecount +=1
+        evaluation.save()
+        evaluation = EvaluationPostSerializer(evaluation)
+        return Response(evaluation.data)
+
+    @action(methods=['get'],detail= True)
+    def sortbyzxhf(self,request,pk):
+        evaluation = EvaluationPost.objects.filter(teachername=pk).order_by('-timestamp')
+        evaluation = EvaluationPostSerializer(evaluation,many = True)
+        return Response(evaluation.data)
+    
+    @action(methods=['get'],detail= True)
+    def sortbydzl(self,request,pk):
+        evaluation = EvaluationPost.objects.filter(teachername=pk).order_by('-likecount')
+        evaluation = EvaluationPostSerializer(evaluation,many = True)
+        return Response(evaluation.data)
+
