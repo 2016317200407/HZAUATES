@@ -74,7 +74,7 @@ export default {
     },
     mounted(){
         this.$axios
-            .get("http://127.0.0.1:8000/homepage/teacherinformation/"+this.$route.params.username)
+            .get("http://60.205.215.81:9000/homepage/teacherinformation/"+this.$route.params.username)
             .then(response=>{
                 this.teacherclass=response.data.teacherclass
                 this.isprofessor=response.data.isprofessor
@@ -88,7 +88,7 @@ export default {
                 alert(error);
             }),
             this.$axios
-            .get("http://127.0.0.1:8000/homepage/teacherinformation/evaluation/dzl/"+this.$route.params.username)
+            .get("http://60.205.215.81:9000/homepage/teacherinformation/evaluation/dzl/"+this.$route.params.username)
             .then(response=>{
                 this.evaluations=response.data
                 })
@@ -100,7 +100,7 @@ export default {
         submit:function(){
             if (this.saysomething){
                 this.$axios({
-                url:'http://127.0.0.1:8000/homepage/teacherinformation/',
+                url:'http://60.205.215.81:9000/homepage/teacherinformation/',
                 method:'post',
                 data:{
                     'teachername':this.$route.params.username,
@@ -118,7 +118,7 @@ export default {
                 alert("输入内容不能为空")
             }
             this.$axios
-                .get("http://127.0.0.1:8000/homepage/teacherinformation/"+this.$route.params.username)
+                .get("http://60.205.215.81:9000/homepage/teacherinformation/"+this.$route.params.username)
                 .then(response=>{
                     this.teacherclass=response.data.teacherclass
                     this.isprofessor=response.data.isprofessor
@@ -132,7 +132,7 @@ export default {
                     alert(error);
                 }),
                 this.$axios
-                .get("http://127.0.0.1:8000/homepage/teacherinformation/evaluation/dzl/"+this.$route.params.username)
+                .get("http://60.205.215.81:9000/homepage/teacherinformation/evaluation/dzl/"+this.$route.params.username)
                 .then(response=>{
                     this.evaluations=response.data
                     })
@@ -142,7 +142,7 @@ export default {
         },
         sortbyzxhf:function(){
             this.$axios
-            .get("http://127.0.0.1:8000/homepage/teacherinformation/evaluation/zxhf/"+this.$route.params.username)
+            .get("http://60.205.215.81:9000/homepage/teacherinformation/evaluation/zxhf/"+this.$route.params.username)
             .then(response=>{
                 this.evaluations=response.data
                 })
@@ -152,7 +152,7 @@ export default {
         },
         sortbydzl:function(){
             this.$axios
-            .get("http://127.0.0.1:8000/homepage/teacherinformation/evaluation/dzl/"+this.$route.params.username)
+            .get("http://60.205.215.81:9000/homepage/teacherinformation/evaluation/dzl/"+this.$route.params.username)
             .then(response=>{
                 this.evaluations=response.data
                 })
@@ -162,7 +162,7 @@ export default {
         },
         ilike:function(i){
             this.$axios
-            .get("http://127.0.0.1:8000/homepage/teacherinformation/evaluation/dz/"+this.evaluations[i].timestamp)
+            .get("http://60.205.215.81:9000/homepage/teacherinformation/evaluation/dz/"+this.evaluations[i].timestamp)
             .then(response=>{
                 this.evaluations[i].likecount = response.data.likecount
                 this.$set(this.evaluations,i,this.evaluations[i])

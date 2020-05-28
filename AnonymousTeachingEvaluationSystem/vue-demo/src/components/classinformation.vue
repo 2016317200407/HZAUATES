@@ -3,7 +3,7 @@
 
     <h5>您搜索的{{ classname }}老师如下</h5>
      <div v-for="teacher in teachers" :key="teacher.teachername">
-        <a :href ="'http://0.0.0.0/teacherinformation/'+ teacher.teachername + '/'">教师姓名：{{ teacher.teachername }}</a>
+        <a :href ="'http://60.205.215.81/teacherinformation/'+ teacher.teachername + '/'">教师姓名：{{ teacher.teachername }}</a>
         <h5>课程：{{ teacher.teacherclass }}</h5>
         <h5>是否是教授：
             <nobr v-if="teacher.isprofessor">
@@ -41,7 +41,7 @@ export default {
     },
     mounted(){
         this.$axios
-            .get("http://127.0.0.1:8000/homepage/classinformation/"+this.$route.params.classname)
+            .get("http://60.205.215.81:9000/homepage/classinformation/"+this.$route.params.classname)
             .then(response=>{
                 this.teachers = response.data
                 })
